@@ -22,7 +22,6 @@ class _BottomNavBaseScreenState extends State<BottomNavBaseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(_selectedScreenIndex);
     return Scaffold(
       body: _screens[_selectedScreenIndex],
       bottomNavigationBar: BottomNavigationBar(
