@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class TaskListTile extends StatelessWidget {
-  const TaskListTile({
-    super.key
-  });
-
+  final Color chipColor;
+   const TaskListTile(
+    this.chipColor, {super.key}
+  );
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -16,12 +16,12 @@ class TaskListTile extends StatelessWidget {
           const Text('Date'),
           Row(
             children: [
-              const Chip(
-                label: Text(
+               Chip(
+                label: const Text(
                   'New',
                   style: TextStyle(color: Colors.white),
                 ),
-                backgroundColor: Colors.blue,
+                backgroundColor: chipColor,
               ),
               const Spacer(),
               IconButton(

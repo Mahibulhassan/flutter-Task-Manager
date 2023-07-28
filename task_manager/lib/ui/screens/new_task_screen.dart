@@ -49,7 +49,7 @@ class NewTaskScreen extends StatelessWidget {
               child: ListView.separated(
                 itemCount: 20,
                 itemBuilder: (context, index) {
-                  return const TaskListTile();
+                  return  TaskListTile(Colors.blue);
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return const Divider(
