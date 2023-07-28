@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class TaskListTile extends StatelessWidget {
   const TaskListTile({
-    super.key,
+    super.key
   });
 
   @override

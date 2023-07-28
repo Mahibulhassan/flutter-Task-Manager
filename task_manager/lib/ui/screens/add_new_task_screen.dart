@@ -1,8 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/model/network_response.dart';
+import 'package:task_manager/data/services/network_caller.dart';
+import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/widgets/user_profile_banner.dart';
 
-class AddNewTaskScreen extends StatelessWidget {
+class AddNewTaskScreen extends StatefulWidget {
   const AddNewTaskScreen({Key? key}) : super(key: key);
+
+  @override
+  State<AddNewTaskScreen> createState() => _AddNewTaskScreenState();
+}
+
+class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
+  final TextEditingController _titleTEController = TextEditingController();
+  final TextEditingController _descriptionTEController =
+  TextEditingController();
+  bool _adNewTaskInProgress = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  Future<void> addNewTask() async {
+    _adNewTaskInProgress = true;
+    if (mounted) {
+      setState(() {});
+    }
+    Map<String, dynamic> requestBody = {
+      "title": _titleTEController.text.trim(),
+      "description": _descriptionTEController.text.trim(),
+      "status": "New"
+    };
+    final NetworkResponse response =
+    await NetworkCaller().postRequest(Urls.createTask, requestBody);
+    _adNewTaskInProgress = false;
+    if (mounted) {
+      setState(() {});
+    }
+    if (response.isSuccess) {
+      _titleTEController.clear();
+      _descriptionTEController.clear();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Task added successfully')));
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Task add failed!')));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,41 +57,71 @@ class AddNewTaskScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const UserProfileBanner(),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16,),
-                  Text(
-                    'Add new task',
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .titleLarge,
-                  ),
-                  const SizedBox(height: 16,),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                        hintText: 'Title'
+            Form(
+              key: _formKey,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 16,
                     ),
-                  ),
-                  const SizedBox(height: 8,),
-                  TextFormField(
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      hintText: 'Description',
+                    Text(
+                      'Add new task',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                  ),
-                  const SizedBox(height: 16,),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                        onPressed: () {
-                        },
-                        child: const Icon(Icons.arrow_forward_ios)),
-                  ),
-                ],
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    TextFormField(
+                      controller: _titleTEController,
+                      decoration: const InputDecoration(hintText: 'Title'),
+                      validator: (String? value){
+                        if(value?.isEmpty ?? true){
+                          return "Require Titel";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    TextFormField(
+                      controller: _descriptionTEController,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        hintText: 'Description',
+                      ),
+                      validator: (String? value){
+                        if(value?.isEmpty ?? true){
+                          return "Require Description";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Visibility(
+                        visible: _adNewTaskInProgress == false,
+                        replacement: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        child: ElevatedButton(
+                            onPressed: () {
+                              if(!_formKey.currentState!.validate()){
+                                return ;
+                              }
+                              addNewTask();
+                            },
+                            child: const Icon(Icons.arrow_forward_ios)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
