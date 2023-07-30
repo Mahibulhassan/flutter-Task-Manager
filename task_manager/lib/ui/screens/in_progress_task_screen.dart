@@ -1,9 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/model/network_response.dart';
+import 'package:task_manager/data/model/task_list_model.dart';
+import 'package:task_manager/data/services/network_caller.dart';
+import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/widgets/task_list_titel.dart';
 import 'package:task_manager/ui/widgets/user_profile_banner.dart';
 
-class InProgressTaskScreen extends StatelessWidget {
+class InProgressTaskScreen extends StatefulWidget {
   const InProgressTaskScreen({Key? key}) : super(key: key);
+
+  @override
+  State<InProgressTaskScreen> createState() => _InProgressTaskScreenState();
+}
+
+class _InProgressTaskScreenState extends State<InProgressTaskScreen> {
+  bool _getProgressTasksInProgress = false;
+  TaskListModel _taskListModel = TaskListModel();
+
+  Future<void> getInProgressTasks() async {
+    _getProgressTasksInProgress = true;
+    if (mounted) {
+      setState(() {});
+    }
+    final NetworkResponse response =
+    await NetworkCaller().getRequest(Urls.inProgressTaskListn);
+    if (response.isSuccess) {
+      _taskListModel = TaskListModel.fromJson(response.body!);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('In progress tasks get failed')));
+      }
+    }
+    _getProgressTasksInProgress = false;
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      getInProgressTasks();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +54,16 @@ class InProgressTaskScreen extends StatelessWidget {
           children: [
             const UserProfileBanner(),
             Expanded(
-              child: ListView.separated(
-                itemCount: 20,
+              child: _getProgressTasksInProgress
+                  ? const Center(
+                child: CircularProgressIndicator(),
+              )
+                  : ListView.separated(
+                itemCount: _taskListModel.data?.length ?? 0,
                 itemBuilder: (context, index) {
-                  return const TaskListTile(Colors.purpleAccent);
+                  return TaskListTile(
+                    data: _taskListModel.data![index],
+                  );
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return const Divider(

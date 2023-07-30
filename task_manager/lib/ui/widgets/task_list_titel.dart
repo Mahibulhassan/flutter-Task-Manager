@@ -1,27 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/model/task_list_model.dart';
 
 class TaskListTile extends StatelessWidget {
-  final Color chipColor;
-   const TaskListTile(
-    this.chipColor, {super.key}
-  );
+  const TaskListTile({
+    super.key, required this.data,
+  });
+
+  final TaskData data;
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: const Text('Title will be here'),
+      title: Text(data.title ?? 'Unknown'),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Title will be here'),
-          const Text('Date'),
+          Text(data.description ?? ''),
+          Text(data.createdDate ?? ''),
           Row(
             children: [
-               Chip(
-                label: const Text(
-                  'New',
-                  style: TextStyle(color: Colors.white),
+              Chip(
+                label: Text(
+                  data.status ?? 'New',
+                  style: const TextStyle(color: Colors.white),
                 ),
-                backgroundColor: chipColor,
+                backgroundColor: Colors.blue,
               ),
               const Spacer(),
               IconButton(

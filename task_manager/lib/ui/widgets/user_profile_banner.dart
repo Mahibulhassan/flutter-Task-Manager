@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/data/model/auth_utility.dart';
 import 'package:task_manager/ui/screens/auth/login_screen.dart';
+import 'package:task_manager/ui/screens/update_profile.dart';
 
 
 class UserProfileBanner extends StatefulWidget {
@@ -18,14 +19,19 @@ class _UserProfileBannerState extends State<UserProfileBanner> {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
       tileColor: Colors.green,
-      leading: CircleAvatar(
-        backgroundImage: NetworkImage(
-          AuthUtility.userInfo.data?.photo ?? '',
-        ),
-        onBackgroundImageError: (_, __) {
-          const Icon(Icons.image);
+      leading: InkWell(
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=> UpdateProfile()) );
         },
-        radius: 15,
+        child: CircleAvatar(
+          backgroundImage: NetworkImage(
+            AuthUtility.userInfo.data?.photo ?? '',
+          ),
+          onBackgroundImageError: (_, __) {
+            const Icon(Icons.image);
+          },
+          radius: 15,
+        ),
       ),
       title: Text(
         '${AuthUtility.userInfo.data?.firstName ?? ''} ${AuthUtility.userInfo.data?.lastName ?? ''}',
