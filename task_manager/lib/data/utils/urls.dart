@@ -11,6 +11,7 @@ class Urls {
   static String completedTaskListn= '$_baseUrl/listTaskByStatus/Completed';
   static String countTaskStatus= '$_baseUrl/taskStatusCount';
   static String recoverResetPassword= '$_baseUrl/RecoverResetPass';
+  static String updateProfile= '$_baseUrl/profileUpdate';
 
   static String deleteTask(String id) => '$_baseUrl/deleteTask/$id';
   static String verifyEmail(String email) => '$_baseUrl/RecoverVerifyEmail/$email';
