@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                const EmailVerificationScreen()));
+                                 EmailVerificationScreen()));
                       },
                       child: const Text(
                         'Forgot Password?',

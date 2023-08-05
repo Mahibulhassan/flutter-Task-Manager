@@ -1,9 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/model/network_response.dart';
+import 'package:task_manager/data/services/network_caller.dart';
+import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/screens/auth/otp_verification_screen.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
-class EmailVerificationScreen extends StatelessWidget {
-  const EmailVerificationScreen({Key? key}) : super(key: key);
+class EmailVerificationScreen extends StatefulWidget {
+  EmailVerificationScreen({Key? key}) : super(key: key);
+
+  @override
+  State<EmailVerificationScreen> createState() => _EmailVerificationScreenState();
+}
+
+class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
+  final TextEditingController _emailController = TextEditingController();
+
+  Future<void> verifyEmailAddress() async{
+    final NetworkResponse response =
+    await NetworkCaller().getRequest(Urls.verifyEmail(_emailController.text.trim()));
+    if(response.isSuccess){
+      Navigator.push(context, MaterialPageRoute(
+          builder: (context) => OtpVerificationScreen(_emailController.text.trim())));
+    }else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Email Verification Failed')));
+      }
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +57,10 @@ class EmailVerificationScreen extends StatelessWidget {
                 const SizedBox(
                   height: 24,
                 ),
-                const TextField(
+                 TextField(
+                  controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Email',
                   ),
                 ),
@@ -45,8 +71,11 @@ class EmailVerificationScreen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => const OtpVerificationScreen()));
+                      if(_emailController.text.trim().isNotEmpty){
+                        verifyEmailAddress();
+                      }else{
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Input Valid Email Address")));
+                      }
                     },
                     child: const Icon(Icons.arrow_circle_right_outlined),
                   ),

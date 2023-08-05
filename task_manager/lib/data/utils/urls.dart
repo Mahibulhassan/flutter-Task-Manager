@@ -9,6 +9,15 @@ class Urls {
   static String inProgressTaskListn= '$_baseUrl/listTaskByStatus/Progress';
   static String canceledTaskListn= '$_baseUrl/listTaskByStatus/Canceled';
   static String completedTaskListn= '$_baseUrl/listTaskByStatus/Completed';
-  static String deleteTask= '$_baseUrl/deleteTask/';
   static String countTaskStatus= '$_baseUrl/taskStatusCount';
+  static String recoverResetPassword= '$_baseUrl/RecoverResetPass';
+
+  static String deleteTask(String id) => '$_baseUrl/deleteTask/$id';
+  static String verifyEmail(String email) => '$_baseUrl/RecoverVerifyEmail/$email';
+
+  static String updateTask(String id, String status) =>
+      '$_baseUrl/updateTaskStatus/$id/$status';
+
+  static String verifyOTP(String email, String otp) =>
+      '$_baseUrl/RecoverVerifyOTP/$email/$otp';
 }

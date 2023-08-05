@@ -1,12 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:task_manager/data/model/network_response.dart';
+import 'package:task_manager/data/services/network_caller.dart';
+import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/screens/auth/login_screen.dart';
 import 'package:task_manager/ui/screens/auth/reset_password_screeen.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
-class OtpVerificationScreen extends StatelessWidget {
-  const OtpVerificationScreen({Key? key}) : super(key: key);
+class OtpVerificationScreen extends StatefulWidget {
+  String email;
+  OtpVerificationScreen(this.email,{Key? key}) : super(key: key);
 
+  @override
+  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
+}
+
+class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
+  String? verifidPinCode;
+
+  Future<void> verifingOTP() async{
+    final NetworkResponse response =
+    await NetworkCaller().getRequest(Urls.verifyOTP(widget.email,verifidPinCode!));
+    if(response.isSuccess){
+      Navigator.push(context, MaterialPageRoute(
+          builder: (context) => ResetPasswordScreen(widget.email,verifidPinCode!)));
+    }else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('OTP Verification Failed')));
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,8 +81,11 @@ class OtpVerificationScreen extends StatelessWidget {
                   enableActiveFill: true,
                   cursorColor: Colors.green,
                   enablePinAutofill: true,
-                  onCompleted: (v) {},
-                  onChanged: (value) {},
+                  onCompleted: (v){
+                  },
+                  onChanged: (value) {
+                    verifidPinCode = value;
+                  },
                   beforeTextPaste: (text) {
                     print("Allowing to paste $text");
                     //if you return true then it will show the paste confirmation dialog. Otherwise if false, then nothing will happen.
@@ -74,10 +101,7 @@ class OtpVerificationScreen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                          context, MaterialPageRoute(builder: (
-                          context) => const ResetPasswordScreen()), (
-                          route) => false);
+                      verifingOTP();
                     },
                     child: const Text('Verify'),
                   ),
