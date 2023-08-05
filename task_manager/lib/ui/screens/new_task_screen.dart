@@ -138,6 +138,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                   itemBuilder: (context, index) {
                     return TaskListTile(
                       data: _taskListModel.data![index],
+                      color: Colors.blue,
                       onDeleteTap: () {
                         deleteTask(_taskListModel.data![index].sId!);
                       },

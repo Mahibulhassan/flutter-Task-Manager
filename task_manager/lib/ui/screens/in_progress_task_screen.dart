@@ -80,6 +80,7 @@ class _InProgressTaskScreenState extends State<InProgressTaskScreen> {
                 itemCount: _taskListModel.data?.length ?? 0,
                 itemBuilder: (context, index) {
                   return TaskListTile(
+                    color: Colors.purple,
                     data: _taskListModel.data![index],
                     onDeleteTap: () {
                       deleteTask(_taskListModel.data![index].sId!);

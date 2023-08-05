@@ -81,6 +81,7 @@ class _CancelledTaskScreenState extends State<CancelledTaskScreen> {
                 itemCount: _taskListModel.data?.length ?? 0,
                 itemBuilder: (context, index) {
                   return TaskListTile(
+                    color: Colors.red,
                     data: _taskListModel.data![index],
                     onDeleteTap: (){
                       deleteTask(_taskListModel.data![index].sId!);
