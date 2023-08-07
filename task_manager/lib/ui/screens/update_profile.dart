@@ -36,7 +36,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       "lastName": _lastNameTEController.text.trim(),
       "mobile": _mobileTEController.text.trim(),
       "password": _passwordTEController.text,
-      "photo": imageFile
+      "photo": ""
     };
     final NetworkResponse response = await NetworkCaller()
         .postRequest(Urls.updateProfile, requestBody, isLogin: true);
