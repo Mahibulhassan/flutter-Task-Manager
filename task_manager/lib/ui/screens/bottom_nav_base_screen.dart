@@ -34,7 +34,6 @@ class _BottomNavBaseScreenState extends State<BottomNavBaseScreen> {
         selectedItemColor: Colors.green,
         onTap: (int index) {
           _selectedScreenIndex = index;
-          print(_selectedScreenIndex);
           if (mounted) {
             setState(() {});
           }

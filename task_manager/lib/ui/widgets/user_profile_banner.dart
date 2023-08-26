@@ -74,7 +74,7 @@ class _UserProfileBannerState extends State<UserProfileBanner> {
             if (mounted) {
               Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(builder: (context) =>LoginScreen()),
                       (route) => false);
             }
           },

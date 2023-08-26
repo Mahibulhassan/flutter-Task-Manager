@@ -1,53 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager/data/model/network_response.dart';
-import 'package:task_manager/data/services/network_caller.dart';
-import 'package:task_manager/data/utils/urls.dart';
+import 'package:get/get.dart';
+import 'package:task_manager/ui/state_managers/add_new_task_controller.dart';
 import 'package:task_manager/ui/widgets/user_profile_banner.dart';
 
-class AddNewTaskScreen extends StatefulWidget {
-  const AddNewTaskScreen({Key? key}) : super(key: key);
+class AddNewTaskScreen extends StatelessWidget {
+  AddNewTaskScreen({Key? key}) : super(key: key);
 
-  @override
-  State<AddNewTaskScreen> createState() => _AddNewTaskScreenState();
-}
-
-class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   final TextEditingController _titleTEController = TextEditingController();
-  final TextEditingController _descriptionTEController =
-  TextEditingController();
-  bool _adNewTaskInProgress = false;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  Future<void> addNewTask() async {
-    _adNewTaskInProgress = true;
-    if (mounted) {
-      setState(() {});
-    }
-    Map<String, dynamic> requestBody = {
-      "title": _titleTEController.text.trim(),
-      "description": _descriptionTEController.text.trim(),
-      "status": "New"
-    };
-    final NetworkResponse response =
-    await NetworkCaller().postRequest(Urls.createTask, requestBody);
-    _adNewTaskInProgress = false;
-    if (mounted) {
-      setState(() {});
-    }
-    if (response.isSuccess) {
-      _titleTEController.clear();
-      _descriptionTEController.clear();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Task added successfully')));
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Task add failed!')));
-      }
-    }
-  }
+  final TextEditingController _descriptionTEController =
+      TextEditingController();
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +41,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                     TextFormField(
                       controller: _titleTEController,
                       decoration: const InputDecoration(hintText: 'Title'),
-                      validator: (String? value){
-                        if(value?.isEmpty ?? true){
+                      validator: (String? value) {
+                        if (value?.isEmpty ?? true) {
                           return "Require Titel";
                         }
                         return null;
@@ -93,8 +57,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                       decoration: const InputDecoration(
                         hintText: 'Description',
                       ),
-                      validator: (String? value){
-                        if(value?.isEmpty ?? true){
+                      validator: (String? value) {
+                        if (value?.isEmpty ?? true) {
                           return "Require Description";
                         }
                         return null;
@@ -103,22 +67,45 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                     const SizedBox(
                       height: 16,
                     ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Visibility(
-                        visible: _adNewTaskInProgress == false,
-                        replacement: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                        child: ElevatedButton(
-                            onPressed: () {
-                              if(!_formKey.currentState!.validate()){
-                                return ;
-                              }
-                              addNewTask();
-                            },
-                            child: const Icon(Icons.arrow_forward_ios)),
-                      ),
+                    GetBuilder<AddNewTaskController>(
+                      builder: (newTaskController) {
+                        return SizedBox(
+                          width: double.infinity,
+                          child: Visibility(
+                            visible:
+                                newTaskController.newTaskInProgress == false,
+                            replacement: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  if (!_formKey.currentState!.validate()) {
+                                    return;
+                                  }
+                                  newTaskController
+                                      .addNewTask(
+                                          _titleTEController.text.trim(),
+                                          _descriptionTEController.text.trim())
+                                      .then((value) {
+                                    if (value == true) {
+                                      _titleTEController.clear();
+                                      _descriptionTEController.clear();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content: Text(
+                                                  'Task added successfully')));
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content:
+                                                  Text('Task add failed!')));
+                                    }
+                                  });
+                                },
+                                child: const Icon(Icons.arrow_forward_ios)),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

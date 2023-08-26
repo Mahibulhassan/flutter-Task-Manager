@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:get/get.dart';
 import 'package:task_manager/data/model/auth_utility.dart';
 import 'package:task_manager/data/model/login_model.dart';
-import 'package:task_manager/data/model/network_response.dart';
-import 'package:task_manager/data/services/network_caller.dart';
-import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/state_managers/update_profile_controller.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/user_profile_banner.dart';
 
@@ -16,6 +15,7 @@ class UpdateProfileScreen extends StatefulWidget {
 }
 
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
+  final _updateProfileController = Get.find<UpdateProfileController>();
   UserData userData = AuthUtility.userInfo.data!;
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _firstNameTEController = TextEditingController();
@@ -26,8 +26,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   XFile? imageFile;
   ImagePicker picker = ImagePicker();
-  bool _profileInProgress = false;
-
 
   @override
   void initState() {
@@ -36,45 +34,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     _firstNameTEController.text = userData.firstName ?? '';
     _lastNameTEController.text = userData.lastName ?? '';
     _mobileTEController.text = userData.mobile ?? '';
-  }
-
-  Future<void> updateProfile() async {
-    _profileInProgress = true;
-    if (mounted) {
-      setState(() {});
-    }
-    final Map<String, dynamic> requestBody = {
-      "firstName": _firstNameTEController.text.trim(),
-      "lastName": _lastNameTEController.text.trim(),
-      "mobile": _mobileTEController.text.trim(),
-      "photo": ""
-    };
-    if (_passwordTEController.text.isNotEmpty) {
-      requestBody['password'] = _passwordTEController.text;
-    }
-
-    final NetworkResponse response =
-    await NetworkCaller().postRequest(Urls.updateProfile, requestBody);
-    _profileInProgress = false;
-    if (mounted) {
-      setState(() {});
-    }
-    if (response.isSuccess) {
-      userData.firstName = _firstNameTEController.text.trim();
-      userData.lastName = _lastNameTEController.text.trim();
-      userData.mobile = _mobileTEController.text.trim();
-      AuthUtility.updateUserInfo(userData);
-      _passwordTEController.clear();
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Profile updated!')));
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profile update failed! Try again.')));
-      }
-    }
   }
 
   @override
@@ -97,7 +56,10 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
                     'Update Profile',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleLarge,
                   ),
                 ),
                 const SizedBox(
@@ -218,18 +180,40 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       const SizedBox(
                         height: 16,
                       ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: _profileInProgress
-                            ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                            : ElevatedButton(
-                          onPressed: () {
-                            updateProfile();
-                          },
-                          child: const Text('Update'),
-                        ),
+                      GetBuilder<UpdateProfileController>(
+                        builder: (profileController){
+                          return SizedBox(
+                            width: double.infinity,
+                            child: _updateProfileController.isProgress
+                                ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                                : ElevatedButton(
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
+                                _updateProfileController.updateProfile(
+                                    _firstNameTEController.text.trim(),
+                                    _lastNameTEController.text.trim(),
+                                    _mobileTEController.text.trim(),
+                                    "",_passwordTEController.text).then((value) {
+                                  if(value == true){
+                                    Get.snackbar("Success", 'Profile updated!');
+                                    userData.firstName = _firstNameTEController.text.trim();
+                                    userData.lastName = _lastNameTEController.text.trim();
+                                    userData.mobile = _mobileTEController.text.trim();
+                                    AuthUtility.updateUserInfo(userData);
+                                    _passwordTEController.clear();
+                                  }else{
+                                    Get.snackbar("Error", 'Profile update failed! Try again.');
+                                  }
+                                });
+                              },
+                              child: const Text('Update'),
+                            ),
+                          );
+                        },
                       )
                     ],
                   ),
